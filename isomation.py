@@ -45,14 +45,13 @@ def main():
         desiredColumn=[int(n) for n in rowdata[1]]
         desiredRowSorted, desiredColumnSorted = subsetOrdering(isoMatrix,desiredRow,desiredColumn)
         dfTrim = pivotSubset(dfFullPivot,desiredRowSorted,desiredColumnSorted)
-        #print dfTrim
         subset += 1
         InfoFile = 'matrixInfo_' + str(subset) + '.csv'        
         realFile = os.path.isfile(InfoFile)
-        #print(dfTrim)
-        #dfTrim.to_csv(NewFilename)
-    #dfFullPivot.to_csv('matrixFull.csv')
+        print(dfTrim)
+        #dfTrim.to_csv(NewFilename)    
     print dfFullPivot
+    #dfFullPivot.to_csv('matrixFull.csv')
     
     return
 
@@ -68,25 +67,17 @@ def extract_isolation(FullFilename):
                 desired_line2 = re.search(']',line,re.M|re.I)
                 if desired_line2: points = line[desired_line.end():desired_line2.start()]
     points = int(points)
-    isoMatrix = init_2dlist(points,3)
+    isoMatrix = init_2dlist(points+1,3)
     i = 0
-    with open(FullFilename) as inF:
-        for index,line in enumerate (inF):
-            desired_line = re.search('(\d+,\d+)',line,re.M|re.I)
-            if desired_line:
-                desired_line2 = re.search('\d+,',line,re.M|re.I)
-                if desired_line2:
-                    snp_name1 = line[1:desired_line2.end()].strip(',')
-                    desired_line3 = re.search(',\d+',line,re.M|re.I)
-                    if desired_line3:
-                        snp_name2 = line[desired_line2.end():desired_line3.end()]
-                        desired_line4 = re.search('-\d+',line,re.M|re.I)
-                        if desired_line4:
-                            snp_iso = line[desired_line4.start():]
-                            isoMatrix[i][0] = portNameDict[snp_name1]
-                            isoMatrix[i][1] = portNameDict[snp_name2]
-                            isoMatrix[i][2] = round(float(snp_iso),0)
-                            i = i+1                        
+    with open(FullFilename) as csvFile:
+        inF = csv.reader(csvFile,delimiter=',')
+        for row in inF:
+            if i > 0:
+                if row[-1]=='0.000': row[-1] = '-1'
+                isoMatrix[i][0] = portNameDict[row[0][1:]]                
+                isoMatrix[i][1] = portNameDict[row[1][:-1]]
+                isoMatrix[i][2] = round(float(row[-1]),0)
+            i += 1
     return isoMatrix
 
 def portNameDictionary():
@@ -125,22 +116,13 @@ def subsetOrdering(isoMatrix,desiredRow,desiredColumn):
             portOrder.append(portNameDict[str(j+1)])
     for j in range(len(desiredRowName)): desiredRowName[j] = portNameDict[str(desiredRow[j])]
     for j in range(len(desiredColumnName)): desiredColumnName[j] = portNameDict[str(desiredColumn[j])]
-    #numPorts = number_of_ports(len(isoMatrix))
     portOrderSorted = sorted(portOrder)
     desiredRowSorted = []
     for port in desiredRowName:
         desiredRowSorted.append(portOrderSorted.index(port))
-    #print a
     desiredColumnSorted = []
     for port in desiredColumnName:
         desiredColumnSorted.append(portOrderSorted.index(port))
-    #x = 3
-    #print desiredColumn[x], desiredColumnName[x]
-    #print desiredColumnSorted[x], portOrderSorted[desiredColumnSorted[x]]
-    
-    
-    #print a
-    #print portNames[a[2]]
     return desiredRowSorted, desiredColumnSorted
 
 def init_2dlist(num_rows,num_cols):
@@ -152,21 +134,8 @@ def init_list(num_rows):
 def init_count_list(num_elements):
     list_var = [k for k in range(num_elements)]
     return list_var
-def number_of_ports(result):
-    num = 2
-    while True:
-        if result == num*num-num: break
-        else: num += 1
-    return num
-def zerofix():
-    with open('matrix.csv') as csvfile:
-        inF = csv.reader(csvfile,delimiter=',')
-        for row in inF:
-            if row[-1]=='0.000': row[-1] = '-1'
-    return
 
 main()
-#zerofix()
 '''**************************************************'''
 
 def inverse_factorial(x):
@@ -179,28 +148,3 @@ def inverse_factorial(x):
     if y == 0: y = 1
         #y = y + 1
     return y
-
-import random
-def random_isoMatrix():
-    #num = 4
-    randIso = int(round(random.random()*-50))+10
-    #print randIso
-    randPort = int(round(random.random()*3))+2
-    randPorts1 = int(round(random.random()*10))
-    randPorts2 = int(round(random.random()*10))
-    #print randPort, randIso
-    #a = [num for num in range(num)]
-    #a = [[x for x in range(randPort)] for x in range(randPort)]
-    a = init_2dlist(randPort*(randPort-1),3)
-    for i in range(randPort):
-        for j in range(randPort):
-            randIso = int(round(random.random()*-50))-10
-            #a[]
-            if i != j:
-                a[j][0] = i+1
-                a[j][1] = j+1
-                a[j][2] = randIso
-            #a = a.append(i)
-    print a
-    return
-#random_isoMatrix()
