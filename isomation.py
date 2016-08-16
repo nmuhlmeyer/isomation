@@ -26,7 +26,7 @@ import os.path
 
 def main():
     #filename = raw_input('Select a file: ')
-    filename = 'matrix2'
+    filename = 'matrix'
     FullFilename = filename + '.csv'
     NewFilename = filename + '_1.csv'
     isoMatrix = extract_isolation(FullFilename)
@@ -49,10 +49,10 @@ def main():
         subset += 1
         InfoFile = 'matrixInfo_' + str(subset) + '.csv'        
         realFile = os.path.isfile(InfoFile)
-        print(dfTrim)
+        #print(dfTrim)
         #dfTrim.to_csv(NewFilename)
     #dfFullPivot.to_csv('matrixFull.csv')
-    #print dfFullPivot
+    print dfFullPivot
     
     return
 
@@ -158,8 +158,15 @@ def number_of_ports(result):
         if result == num*num-num: break
         else: num += 1
     return num
+def zerofix():
+    with open('matrix.csv') as csvfile:
+        inF = csv.reader(csvfile,delimiter=',')
+        for row in inF:
+            if row[-1]=='0.000': row[-1] = '-1'
+    return
 
 main()
+#zerofix()
 '''**************************************************'''
 
 def inverse_factorial(x):
