@@ -25,10 +25,9 @@ import csv
 import os.path
 
 def main():
-    #filename = raw_input('Select a file: ')
-    filename = 'matrix'
+    filename = raw_input('Select a file: ')
+    #filename = 'matrix'
     FullFilename = filename + '.csv'
-    NewFilename = filename + '_1.csv'
     isoMatrix = extract_isolation(FullFilename)
     df = pandas.DataFrame(isoMatrix,columns=['Port 1','Port 2','Isolation'])
     dfFullPivot = df.pivot('Port 1', 'Port 2')
@@ -51,7 +50,7 @@ def main():
         print(dfTrim)
         #dfTrim.to_csv(NewFilename)    
     print dfFullPivot
-    #dfFullPivot.to_csv('matrixFull.csv')
+    #dfFullPivot.to_csv('matrix' + 'Full.csv')
     
     return
 
@@ -67,16 +66,16 @@ def extract_isolation(FullFilename):
                 desired_line2 = re.search(']',line,re.M|re.I)
                 if desired_line2: points = line[desired_line.end():desired_line2.start()]
     points = int(points)
-    isoMatrix = init_2dlist(points+1,3)
+    isoMatrix = init_2dlist(points,3)
     i = 0
     with open(FullFilename) as csvFile:
         inF = csv.reader(csvFile,delimiter=',')
         for row in inF:
             if i > 0:
                 if row[-1]=='0.000': row[-1] = '-1'
-                isoMatrix[i][0] = portNameDict[row[0][1:]]                
-                isoMatrix[i][1] = portNameDict[row[1][:-1]]
-                isoMatrix[i][2] = round(float(row[-1]),0)
+                isoMatrix[i-1][0] = portNameDict[row[0][1:]]                
+                isoMatrix[i-1][1] = portNameDict[row[1][:-1]]
+                isoMatrix[i-1][2] = round(float(row[-1]),0)
             i += 1
     return isoMatrix
 
