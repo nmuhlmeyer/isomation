@@ -28,15 +28,15 @@ def main():
     filename = raw_input('Select a file: ')
     #filename = 'matrix'
     FullFilename = filename + '.csv'
-    isoMatrix = extract_isolation(FullFilename)
+    isoMatrix = extractIsolation(FullFilename)
     df = pandas.DataFrame(isoMatrix,columns=['Port 1','Port 2','Isolation'])
     dfFullPivot = df.pivot('Port 1', 'Port 2')
-    realFile = os.path.isfile('matrixInfo_1.csv')
+    realFile = os.path.isfile(filename + 'Info_1.csv')
     subset = 1
     while realFile:
-        NewFilename = 'matrixSub_' + str(subset) + '.csv'
+        NewFilename = filename + 'Sub_' + str(subset) + '.csv'
         rowdata=[]
-        with open('matrixInfo_' + str(subset) + '.csv') as csvfile:
+        with open(filename + 'Info_' + str(subset) + '.csv') as csvfile:
             inF = csv.reader(csvfile,delimiter=',')
             for row in inF:
                 rowdata.append(row)
@@ -45,18 +45,17 @@ def main():
         desiredRowSorted, desiredColumnSorted = subsetOrdering(isoMatrix,desiredRow,desiredColumn)
         dfTrim = pivotSubset(dfFullPivot,desiredRowSorted,desiredColumnSorted)
         subset += 1
-        InfoFile = 'matrixInfo_' + str(subset) + '.csv'        
+        InfoFile = filename + 'Info_' + str(subset) + '.csv'        
         realFile = os.path.isfile(InfoFile)
         print(dfTrim)
         #dfTrim.to_csv(NewFilename)    
     print dfFullPivot
-    #dfFullPivot.to_csv('matrix' + 'Full.csv')
-    
+    #dfFullPivot.to_csv(filename + 'Full.csv')
     return
 
 '''**************************************************'''
 
-def extract_isolation(FullFilename):
+def extractIsolation(FullFilename):
     portNameDict, _ = portNameDictionary()
     with open(FullFilename) as inF:
         points = 0
@@ -72,7 +71,6 @@ def extract_isolation(FullFilename):
         inF = csv.reader(csvFile,delimiter=',')
         for row in inF:
             if i > 0:
-                if row[-1]=='0.000': row[-1] = '-1'
                 isoMatrix[i-1][0] = portNameDict[row[0][1:]]                
                 isoMatrix[i-1][1] = portNameDict[row[1][:-1]]
                 isoMatrix[i-1][2] = round(float(row[-1]),0)
@@ -103,7 +101,7 @@ def pivotSubset(dfFullPivot,desiredRow,desiredColumn):
     return dfTrim
 
 def subsetOrdering(isoMatrix,desiredRow,desiredColumn):
-    [portNameDict, highestPort] = portNameDictionary()
+    portNameDict, highestPort = portNameDictionary()
     desiredRowName = init_list(len(desiredRow))
     desiredColumnName = init_list(len(desiredColumn))
     portOrder=[]
@@ -117,11 +115,9 @@ def subsetOrdering(isoMatrix,desiredRow,desiredColumn):
     for j in range(len(desiredColumnName)): desiredColumnName[j] = portNameDict[str(desiredColumn[j])]
     portOrderSorted = sorted(portOrder)
     desiredRowSorted = []
-    for port in desiredRowName:
-        desiredRowSorted.append(portOrderSorted.index(port))
+    for port in desiredRowName: desiredRowSorted.append(portOrderSorted.index(port))
     desiredColumnSorted = []
-    for port in desiredColumnName:
-        desiredColumnSorted.append(portOrderSorted.index(port))
+    for port in desiredColumnName: desiredColumnSorted.append(portOrderSorted.index(port))
     return desiredRowSorted, desiredColumnSorted
 
 def init_2dlist(num_rows,num_cols):
